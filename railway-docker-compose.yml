@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # Simplified WorkAdventure Services for Railway
+  workadventure-back:
+    image: thecodingmachine/workadventure-back:master
+    environment:
+      - SECRET_KEY=wa-blackhub-secret-key-2024
+      - ADMIN_API_TOKEN=blackhub-admin-token-2024
+      - JITSI_URL=jitsi.blackhub.spot
+      - JITSI_ISS=blackhub
+      - MAX_PER_GROUP=4
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "8080:8080"
+
+  workadventure-front:
+    image: thecodingmachine/workadventure-front:master
+    environment:
+      - PUSHER_URL=//workadventure-pusher:8080
+      - ADMIN_URL=//workadventure-back:8080
+      - UPLOADER_URL=//workadventure-uploader:8080
+      - ICON_URL=//workadventure-back:8080
+      - STUN_SERVER=stun:stun.l.google.com:19302
+      - TURN_SERVER=turn:coturn:3478
+      - TURN_USER=blackhub
+      - TURN_PASSWORD=blackhub123
+      - START_ROOM_URL=/_/global/gcgcmncmtofffgihpenp.supabase.co/functions/v1/wa-bridge/starter/map.json
+    ports:
+      - "8082:80"
+
+  workadventure-pusher:
+    image: thecodingmachine/workadventure-pusher:master
+    environment:
+      - SECRET_KEY=wa-blackhub-secret-key-2024
+      - ADMIN_API_TOKEN=blackhub-admin-token-2024
+      - API_URL=workadventure-back:50051
+      - FRONT_URL=http://workadventure-front:80
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "8081:8080"
+
+  workadventure-uploader:
+    image: thecodingmachine/workadventure-uploader:master
+    environment:
+      - UPLOAD_MAX_FILESIZE=10m
+    ports:
+      - "8087:8080"
+
+  # Supporting Services
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+  coturn:
+    image: coturn/coturn:latest
+    ports:
+      - "3478:3478"
+      - "3478:3478/udp"
+      - "49152-65535:49152-65535/udp"
+    environment:
+      - EXTERNAL_IP=127.0.0.1
+    command: >
+      sh -c "echo 'external-ip=\$EXTERNAL_IP' > /etc/coturn/turnserver.conf &&
+             echo 'listening-port=3478' >> /etc/coturn/turnserver.conf &&
+             echo 'min-port=49152' >> /etc/coturn/turnserver.conf &&
+             echo 'max-port=65535' >> /etc/coturn/turnserver.conf &&
+             echo 'lt-cred-mech' >> /etc/coturn/turnserver.conf &&
+             echo 'user=blackhub:blackhub123' >> /etc/coturn/turnserver.conf &&
+             echo 'realm=blackhub.spot' >> /etc/coturn/turnserver.conf &&
+             turnserver -c /etc/coturn/turnserver.conf"
+
+volumes:
+  redis_data:

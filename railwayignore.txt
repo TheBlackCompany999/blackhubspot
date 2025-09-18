@@ -1,0 +1,25 @@
+# Railway ignore file
+node_modules/
+.git/
+.env
+.env.local
+dist/
+build/
+coverage/
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# Exclude original docker-compose (use railway-specific one)
+docker-compose.yml
+
+# Development files
+src/
+public/
+*.md
+tsconfig.json
+vite.config.ts
+tailwind.config.ts
+package.json
+package-lock.json
