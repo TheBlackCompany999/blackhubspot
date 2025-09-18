@@ -1,0 +1,18 @@
+# Multi-stage Dockerfile for WorkAdventure deployment on Railway
+FROM nginx:alpine
+
+# Copy nginx configuration
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+
+# Create directory for static assets if needed
+RUN mkdir -p /usr/share/nginx/html
+
+# Copy any static assets (maps, etc.)
+COPY maps/ /usr/share/nginx/html/maps/ 2>/dev/null || true
+COPY assets/ /usr/share/nginx/html/assets/ 2>/dev/null || true
+
+# Expose port 80
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

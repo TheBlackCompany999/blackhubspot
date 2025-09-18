@@ -1,0 +1,24 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "sleepApplication": false,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  },
+  "environments": {
+    "production": {
+      "variables": {
+        "NODE_ENV": "production",
+        "SECRET_KEY": "wa-blackhub-secret-key-2024",
+        "ADMIN_API_TOKEN": "blackhub-admin-token-2024",
+        "JITSI_URL": "jitsi.blackhub.spot",
+        "JITSI_ISS": "blackhub",
+        "MAX_PER_GROUP": "4"
+      }
+    }
+  }
+}
